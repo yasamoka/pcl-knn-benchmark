@@ -47,7 +47,8 @@ BENCHMARK(BM_KdTreeFLANN_Search)
     ->ArgsProduct({
         benchmark::CreateRange(10000, 1000000, 10),
         benchmark::CreateRange(1000, 1000000, 10),
-        { 1 }
+        { 1 },
+        { 0, 1 }
     })
     ->Unit(benchmark::TimeUnit::kMillisecond)
 ;

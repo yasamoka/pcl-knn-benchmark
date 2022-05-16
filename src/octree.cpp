@@ -50,7 +50,7 @@ OctreeManager::Map OctreeManager::tree_map_;
 
 static void BM_Octree_Search(benchmark::State& state)
 {
-    float resolution = state.range(3);
+    float resolution = state.range(4);
     BM_Search<OctreeManager>(state, resolution);
 }
 
@@ -59,6 +59,7 @@ BENCHMARK(BM_Octree_Search)
         benchmark::CreateRange(10000, 1000000, 10),
         { 1000 },
         { 1 },
+        { 0 },
         { 128 }
     })
     ->Unit(benchmark::TimeUnit::kMillisecond)
