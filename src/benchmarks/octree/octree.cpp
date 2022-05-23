@@ -1,12 +1,14 @@
 #include <pcl/octree/octree_search.h>
 
-#include <base.hpp>
+#include <benchmarks/base.hpp>
+#include <benchmarks/octree/octree.hpp>
+
+using Tree = pcl::octree::OctreePointCloudSearch<Point>;
 
 class OctreeManager
 {
 public:
     using Key = std::pair<size_t, float>;
-    using Tree = pcl::octree::OctreePointCloudSearch<Point>;
 
     struct KeyHash
     {
@@ -48,19 +50,25 @@ public:
 
 OctreeManager::Map OctreeManager::tree_map_;
 
-static void BM_Octree_Search(benchmark::State& state)
+void BM_CPU_Octree_Build_Tree(benchmark::State& state)
+{
+    size_t num_search_points = state.range(0);
+    float resolution = state.range(1);
+
+    CloudConstPtr search_cloud = CloudManager::get_search_cloud(num_search_points);
+    
+    for (auto _ : state)
+    {
+        state.PauseTiming();
+        Tree tree { resolution };
+        state.ResumeTiming();
+        tree.setInputCloud(search_cloud);
+        tree.addPointsFromInputCloud();
+    }
+}
+
+void BM_CPU_Octree_Search(benchmark::State& state)
 {
     float resolution = state.range(4);
     BM_Search<OctreeManager>(state, resolution);
 }
-
-BENCHMARK(BM_Octree_Search)
-    ->ArgsProduct({
-        benchmark::CreateRange(10000, 1000000, 10),
-        { 1000 },
-        { 1 },
-        { 0 },
-        { 128 }
-    })
-    ->Unit(benchmark::TimeUnit::kMillisecond)
-;

@@ -1,4 +1,5 @@
-#include <base.hpp>
+#include <benchmarks/base.hpp>
+#include <benchmarks/brute_force.hpp>
 
 class BruteForceTreeManager
 {
@@ -130,17 +131,7 @@ public:
 
 BruteForceTreeManager::Map BruteForceTreeManager::tree_map_;
 
-static void BM_BruteForce_Search(benchmark::State& state)
+void BM_BruteForce_Search(benchmark::State& state)
 {
     BM_Search<BruteForceTreeManager>(state);
 }
-
-BENCHMARK(BM_BruteForce_Search)
-    ->ArgsProduct({
-        benchmark::CreateRange(10000, 1000000, 10),
-        { 1000 },
-        { 1 },
-        { 0, 1 }
-    })
-    ->Unit(benchmark::TimeUnit::kMillisecond)
-;
