@@ -27,6 +27,9 @@ def get_default_argparser() -> ArgumentParser:
     )
     parser.add_argument("--display-scale", type=float, help="Display scale", default=1)
     parser.add_argument(
+        "--do-not-draw-titles", action="store_false", help="Do not draw titles"
+    )
+    parser.add_argument(
         "--do-not-show", action="store_false", help="Do not show figures"
     )
     parser.add_argument(
@@ -39,6 +42,7 @@ def get_default_args(args) -> Tuple[str, str]:
     csv_filepaths = [Path(filepath) for filepath in args.benchmark]
     setup_names = args.setup
     display_scale = args.display_scale
+    draw_titles = args.do_not_draw_titles
     show = args.do_not_show
     fig_output_dir = Path(args.output) if args.output is not None else None
 
@@ -49,7 +53,15 @@ def get_default_args(args) -> Tuple[str, str]:
     else:
         setup_names = [""]
 
-    return csv_filepaths, setup_names, display_scale, show, fig_output_dir, compare
+    return (
+        csv_filepaths,
+        setup_names,
+        display_scale,
+        draw_titles,
+        show,
+        fig_output_dir,
+        compare,
+    )
 
 
 def merge_dfs(csv_filepaths: List[Path], setup_names: List[str]) -> pd.DataFrame:
@@ -140,8 +152,8 @@ def label(
     ax.set_title(", ".join(title_lines))
 
 
-def save_figure(output_dir: Optional[Path], filename: str) -> None:
+def save_figure(output_dir: Optional[Path], relative_filepath: Path) -> None:
     if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-        fig_filepath = Path(output_dir, filename)
-        plt.savefig(fig_filepath, format="svg")
+        fig_filepath = Path(output_dir, relative_filepath)
+        os.makedirs(fig_filepath.parent, exist_ok=True)
+        plt.savefig(fig_filepath, bbox_inches="tight", format="svg")

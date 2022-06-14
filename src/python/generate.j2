@@ -1,0 +1,119 @@
+{% set THREADING_FILENAME_MAP = ["st", "mt", "cuda", "mt_cuda"] %}
+{% set THREADING_TITLE_MAP = ["Single-threaded", "Multithreaded", "CUDA", "Multi-threaded / CUDA"] -%}
+{% set THREADING_MAP = ["single-threaded", "multithreaded", "CUDA", "multi-threaded / CUDA"] -%}
+{% set is_comparison = setup_names | length > 1 %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="https://yasamoka.github.io/pcl-knn-benchmark/stylesheets/page.css"/>
+</head>
+
+# {% if is_comparison %}{{ comparison_name }}{% else %}{{ setup_names[0] }}{% endif +%}
+
+------
+
+## Configuration{% if is_comparison %}s{% endif +%}
+
+{% for setup_name, config in setup_names | zip(configs) %}
+{% if is_comparison  %}
+{% if loop.index0 != 0 %}
+
+------
+
+{% endif %}
+#### {{ setup_name }}:
+{% endif %}
+
+| **Parameter** | **Value** |
+{% for param_key, param_value in config.items() %}
+| {{ param_key }} | {{ param_value }} |
+{% endfor %}
+{% endfor %}
+
+## Benchmarks
+
+### Build tree
+
+{% for params in plot_params["build_tree"] %}
+{% set num_search_points = params["num_search_points"] %}
+{% set num_search_points_pretty = num_search_points | thousands %}
+{% if loop.index0 != 0 %}
+
+{% endif %}
+| **Parameter** | **Value** |
+| \# search points | {{ num_search_points_pretty }} |
+
+{% set url %}plots/build-tree/num_search_{{ num_search_points }}.svg{% endset %}
+<a href="{{ url }}">
+    <img src="{{ url }}" alt="Build tree, # search points = {{ num_search_points_pretty }}"/>
+</a>
+{% endfor %}
+
+### NN search
+
+#### Best max leaf size
+{% for params in plot_params["nn_search"]["best_max_leaf_size"] %}
+{% set num_query_points = params["num_query_points"] %}
+{% set num_query_points_pretty = num_query_points | thousands %}
+{% set k = params["k"] %}
+{% if loop.index0 != 0 %}
+------
+{% endif %}
+
+| **Parameter** | **Value** |
+| \# query points | {{ num_query_points_pretty }} |
+| K | {{ k }} |
+
+{% for threading in params["threading"] %}
+{% set url %}plots/nn-search/bar/num_query_{{ num_query_points }}_k_{{ k }}_{{ THREADING_FILENAME_MAP[threading] }}.svg{% endset %}
+##### {{ THREADING_TITLE_MAP[threading] }}:
+
+<a href="{{ url }}">
+    <img src="{{ url }}" alt="NN search, # query points = {{ num_query_points_pretty }}, K = {{ k }}, {{ THREADING_MAP[threading] }}"/>
+</a>
+
+{% endfor %}
+{% endfor -%}
+
+{% if plot_params["nn_search"]["detailed"] | length > 0 %}
+#### Detailed
+
+{% for params in plot_params["nn_search"]["detailed"] %}
+{% set num_search_points = params["num_search_points"] %}
+{% set num_query_points = params["num_query_points"]%}
+{% set num_search_points_pretty = num_search_points | thousands %}
+{% set num_query_points_pretty = num_query_points | thousands %}
+{% set k = params["k"] %}
+{% if loop.index0 != 0 %}
+
+------
+
+{% endif %}
+| **Parameter** | **Value** |
+| \# search points | {{ num_search_points_pretty }} |
+| \# query points | {{ num_query_points_pretty }} |
+| K | {{ k }} |
+
+{% for threading in params["threading"] %}
+{% set url %}plots/nn-search/line/num_search_{{ num_search_points }}_num_query_{{ num_query_points }}_k_{{ k }}_{{ THREADING_FILENAME_MAP[threading] }}.svg{% endset %}
+##### {{ THREADING_TITLE_MAP[threading] }}:
+<a href="{{ url }}">
+    <img src="{{ url }}" alt="NN search, # search points = {{ num_search_points_pretty }}, # query points = {{ num_query_points_pretty }}, K = {{ k }}, {{ THREADING_MAP[threading] }}"/>
+</a>
+{% endfor %}
+{% endfor %}
+{% endif -%}
+
+## Generation
+
+### Page (with plots)
+
+```bash
+{{ page_generation_command }}
+```
+
+### Plots
+```shell
+PYTHONPATH=. python plots/build_tree.py{% for csv_filepath, setup_name in build_tree_csv_filepaths | zip(setup_names) %} -b {{ csv_filepath }}{% if is_comparison %} -s "{{ setup_name }}"{% endif %}{% endfor +%}
+PYTHONPATH=. python plots/nn_search.py{% for csv_filepath, setup_name in nn_search_csv_filepaths | zip(setup_names) %} -b {{ csv_filepath }}{% if is_comparison %} -s "{{ setup_name }}"{% endif %}{% endfor %}{% if not is_comparison %} --draw-line-plots{% endif +%}
+```
+

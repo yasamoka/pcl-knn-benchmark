@@ -1,0 +1,23 @@
+img {
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+}
+
+h5 {
+    font-size: 12pt;
+}
+
+td:first-child {
+    text-align: left;
+}
+
+td:nth-child(2) {
+    text-align: right;
+}
+
+.main-content table {
+    display: table
+}
