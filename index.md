@@ -1,5 +1,18 @@
 ## Welcome to GitHub Pages
 
+#### Setups
+
+- Dell XPS 15 9550
+  - [Intel Core i5 6300HQ](setups/xps-15-9550/6300hq/index.md)
+  - [NVIDIA GeForce GTX 960M](setups/xps-15-9550/960m/index.md)
+- Desktop
+  - [Intel Core i7 5820K](setups/desktop/5820k/index.md)
+  - [NVIDIA GeForce GTX 1080Ti](setups/desktop/1080ti/index.md)
+
+#### Comparisons
+
+[Full Comparison](comparisons/full-comparison/index.md)
+
 You can use the [editor on GitHub](https://github.com/yasamoka/pcl-knn-benchmark/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
